@@ -2,7 +2,7 @@ package luar
 
 import (
 	"reflect"
-
+	"strings"
 	"github.com/yuin/gopher-lua"
 )
 
@@ -51,9 +51,11 @@ func GetConfig(L *lua.LState) *Config {
 }
 
 func defaultFieldNames(s reflect.Type, f reflect.StructField) []string {
-	const tagName = "luar"
+	const tagName = "json"
 
-	tag := f.Tag.Get(tagName)
+	item := f.Tag.Get(tagName)
+	tag := strings.Split(item, ",")[0]
+
 	if tag == "-" {
 		return nil
 	}
