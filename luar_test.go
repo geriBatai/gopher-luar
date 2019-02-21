@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/yuin/gopher-lua"
+	lua "github.com/yuin/gopher-lua"
 )
 
 func Test_luar_complex128(t *testing.T) {
@@ -195,7 +195,7 @@ func Test_udconversion(t *testing.T) {
 	var out int
 	L.SetGlobal("out", New(L, &out))
 
-	testError(t, L, `_ = out ^ ud`, "cannot use hello world (type string) as type int")
+	testError(t, L, `_ = out ^ ud`, "cannot perform pow operation between number and userdata")
 }
 
 func Test_arrayconversion(t *testing.T) {
@@ -205,6 +205,34 @@ func Test_arrayconversion(t *testing.T) {
 	var arr [3]int
 	L.SetGlobal("arr", New(L, &arr))
 	testReturn(t, L, `arr = arr ^ {10, 20, 11}; return arr[1], arr[2], arr[3]`, "10", "20", "11")
+}
+
+func Test_intpointer(t *testing.T) {
+	L := lua.NewState()
+	defer L.Close()
+
+	var p int
+	p = 3
+
+	L.SetGlobal("p", New(L, &p))
+	testReturn(t, L, `p = 4; return p`, "4")
+}
+
+func Test_pointerStruct(t *testing.T) {
+	L := lua.NewState()
+	defer L.Close()
+
+	type AB struct {
+		A *int32
+		B *int
+	}
+	var a int32 = 9
+	var b = 9
+	ab := &AB{A: &a, B: &b}
+
+	L.SetGlobal("ab", New(L, ab))
+	testReturn(t, L, `ab.a = 12; return ab.a`, "12")
+	testReturn(t, L, `ab.b = 12; return ab.b`, "12")
 }
 
 type TestInterfaceStruct struct{}

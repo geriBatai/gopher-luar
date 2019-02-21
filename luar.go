@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/yuin/gopher-lua"
+	lua "github.com/yuin/gopher-lua"
 )
 
 // New creates and returns a new lua.LValue for the given value. Values are
@@ -103,7 +103,16 @@ func New(L *lua.LState, value interface{}) lua.LValue {
 		return lua.LNumber(float64(val.Uint()))
 	case reflect.Float32, reflect.Float64:
 		return lua.LNumber(val.Float())
-	case reflect.Chan, reflect.Map, reflect.Ptr, reflect.Slice:
+	case reflect.Ptr:
+		if val.IsNil() {
+			return lua.LNil
+		}
+		if isIntValue(val.Elem()) {
+			return lua.LNumber(float64(val.Elem().Int()))
+		}
+		fallthrough
+
+	case reflect.Chan, reflect.Map, reflect.Slice:
 		if val.IsNil() {
 			return lua.LNil
 		}
@@ -213,7 +222,25 @@ func lValueToReflectInner(L *lua.LState, v lua.LValue, hint reflect.Type, visite
 		}
 		return val.Convert(hint), nil
 	case lua.LNumber:
+		if hint.Kind() == reflect.Ptr {
+			switch hint.Elem().Kind() {
+			case reflect.Int:
+				cc := int(converted)
+				return reflect.ValueOf(&cc), nil
+			case reflect.Int8:
+				cc := int8(converted)
+				return reflect.ValueOf(&cc), nil
+			case reflect.Int32:
+				cc := int32(converted)
+				return reflect.ValueOf(&cc), nil
+			case reflect.Int64:
+				cc := int64(converted)
+				return reflect.ValueOf(&cc), nil
+			}
+		}
+
 		val := reflect.ValueOf(float64(converted))
+
 		if !val.Type().ConvertibleTo(hint) {
 			return reflect.Value{}, conversionError{
 				Lua:  v,
@@ -481,4 +508,13 @@ func lValueToReflectInner(L *lua.LState, v lua.LValue, hint reflect.Type, visite
 	}
 
 	panic("never reaches")
+}
+
+func isIntValue(value reflect.Value) bool {
+	switch value.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return true
+	}
+	return false
 }

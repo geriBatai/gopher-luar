@@ -3,7 +3,7 @@ package luar
 import (
 	"testing"
 
-	"github.com/yuin/gopher-lua"
+	lua "github.com/yuin/gopher-lua"
 )
 
 func Test_struct(t *testing.T) {
@@ -91,7 +91,7 @@ type StructTestHidden struct {
 	Name   string `luar:"name"`
 	Name2  string `luar:"Name"`
 	Str    string
-	Hidden bool `luar:"-"`
+	Hidden bool `json:"-"`
 }
 
 func Test_struct_hiddenfields(t *testing.T) {
@@ -108,7 +108,7 @@ func Test_struct_hiddenfields(t *testing.T) {
 	L.SetGlobal("a", New(L, a))
 
 	testReturn(t, L, `return a.name`, "tim")
-	testReturn(t, L, `return a.Name`, "bob")
+	testReturn(t, L, `return a.Name`, "tim")
 	testReturn(t, L, `return a.str`, "asd123")
 	testReturn(t, L, `return a.Str`, "asd123")
 	testReturn(t, L, `return a.Hidden`, "nil")
@@ -177,7 +177,7 @@ func Test_struct_embeddedtype(t *testing.T) {
 type TestStructEmbedded struct {
 	StructTestPerson
 	P  StructTestPerson
-	P2 StructTestPerson `luar:"other"`
+	P2 StructTestPerson `json:"other"`
 }
 
 func Test_struct_embedded(t *testing.T) {
@@ -242,9 +242,9 @@ func Test_struct_embedded(t *testing.T) {
 }
 
 type TestPointerReplaceHidden struct {
-	A string `luar:"q"`
-	B int    `luar:"other"`
-	C int    `luar:"-"`
+	A string `json:"q"`
+	B int    `json:"other"`
+	C int    `json:"-"`
 }
 
 func Test_struct_pointerreplacehidden(t *testing.T) {

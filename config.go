@@ -3,7 +3,8 @@ package luar
 import (
 	"reflect"
 	"strings"
-	"github.com/yuin/gopher-lua"
+
+	lua "github.com/yuin/gopher-lua"
 )
 
 // Config is used to define luar behaviour for a particular *lua.LState.

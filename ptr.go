@@ -3,7 +3,7 @@ package luar
 import (
 	"reflect"
 
-	"github.com/yuin/gopher-lua"
+	lua "github.com/yuin/gopher-lua"
 )
 
 func checkPtr(L *lua.LState, idx int) (ref reflect.Value, mt *Metatable) {
@@ -48,6 +48,7 @@ func ptrPow(L *lua.LState) int {
 	if err != nil {
 		L.ArgError(2, err.Error())
 	}
+
 	elem.Set(value)
 	L.SetTop(1)
 	return 1

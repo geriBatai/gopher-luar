@@ -3,7 +3,7 @@ package luar
 import (
 	"reflect"
 
-	"github.com/yuin/gopher-lua"
+	lua "github.com/yuin/gopher-lua"
 )
 
 func structIndex(L *lua.LState) int {
@@ -84,6 +84,7 @@ func structPtrNewIndex(L *lua.LState) int {
 	if err != nil {
 		L.ArgError(2, err.Error())
 	}
+
 	field.Set(val)
 	return 0
 }
